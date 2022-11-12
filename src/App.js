@@ -1,25 +1,62 @@
-import logo from './logo.svg';
-import './App.css';
+import { useCallback, useEffect, useState } from "react";
+import { v4 as uuid } from "uuid";
+
+import { TestCase } from "./TestCase";
+
+import "./App.css";
+
+const fetchCases = async () =>
+    fetch("input.jttp").then(async (response) => {
+        const text = await response.text();
+
+        let caseLines = [];
+        const delim = RegExp("^s*#{3,}s*$");
+        const caseBlocks = text.split("\n").reduce((blocks, line) => {
+            if (delim.test(line)) {
+                if (caseLines.length > 0) {
+                    blocks.push(caseLines.join("\n"));
+                    caseLines = [];
+                }
+            } else {
+                caseLines.push(line);
+            }
+
+            return blocks;
+        }, []);
+        if (caseLines.length > 0) {
+            caseBlocks.push(caseLines.join("\n"));
+        }
+
+        return caseBlocks;
+    });
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    const [cases, setCases] = useState();
+
+    useEffect(() => {
+        fetchCases().then((caseSrces) => {
+            const caseObjs = caseSrces.map((src) => ({ src, id: uuid() }));
+            setCases(caseObjs);
+        });
+    }, []);
+
+    const addCase = useCallback(() => {
+        setCases([...cases, { id: uuid() }]);
+    }, [cases, setCases]);
+
+    return (
+        <div
+            className="App"
+            style={{
+                display: "flex",
+                flexDirection: "column",
+            }}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+            {cases &&
+                cases.map(({ id, src }) => <TestCase key={id} src={src} />)}
+            <button onClick={addCase}>+</button>
+        </div>
+    );
 }
 
 export default App;
