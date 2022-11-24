@@ -1,9 +1,9 @@
-const { parse: gqlParse } = require("graphql");
-const { XMLParser } = require("fast-xml-parser");
-const { v4: uuid } = require("uuid");
-const { parse: yamlParse } = require("yaml");
+import { parse as gqlParse } from "graphql";
+import { XMLParser } from "fast-xml-parser";
+import { v4 as uuid } from "uuid";
+import { parse as yamlParse } from "yaml";
 
-const httpMessageParser = require("@ibiwan/http-message-parser");
+import httpMessageParser from "@ibiwan/http-message-parser";
 
 const validate = (message) => {
     const hasUrl = "url" in message;
@@ -58,11 +58,12 @@ const parseBody = (body) => {
     return Object.fromEntries(parsedEntries);
 };
 
-const parse = (src) => {
+export const parse = (src) => {
     if (!src) {
         return null;
     }
-    const parsed = httpMessageParser(src);
+
+    const parsed = httpMessageParser(src.body);
     const minimItems = Object.entries(parsed).filter(([k, v]) => v);
 
     const minim = Object.fromEntries(minimItems);
@@ -73,7 +74,5 @@ const parse = (src) => {
         minim.body = parseBody(minim.body);
     }
 
-    return minim;
+    return { ...src, request: minim };
 };
-
-module.exports = parse;

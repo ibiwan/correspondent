@@ -1,5 +1,5 @@
 import { useState } from "react";
-import parse from "./extendedHttpParse";
+import { parse } from "./extendedHttpParse";
 
 export const TestCase = ({ src: initialSrc = null }) => {
     const [src, setSrc] = useState(initialSrc);
@@ -38,7 +38,6 @@ export const TestCase = ({ src: initialSrc = null }) => {
         };
         fetch(url, params)
             .then((data) => {
-                // console.log(data);
                 data.blob().then(console.log);
                 setResp(data);
             })
