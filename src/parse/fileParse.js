@@ -31,7 +31,7 @@ const sortLine = (req, line, i) => {
             });
         });
         if (annotations.length > 0) {
-            req.annotations.push(annotations);
+            req.annotations.push(...annotations);
         } else {
             req.lines.push(line);
             req.bodyLines.push(i);
@@ -44,11 +44,11 @@ const sortLine = (req, line, i) => {
     }
 };
 
-export const getCases = () => {
+export const getSections = () => {
     const text = readFileSync("public/input.jttp", "utf-8");
 
     let req = newRequest();
-    const caseBlocks = text.split("\n").reduce((blocks, line, i) => {
+    const sectionBlocks = text.split("\n").reduce((blocks, line, i) => {
         const isDelim = sortLine(req, line, i);
         if (isDelim) {
             blocks.push(req);
@@ -68,8 +68,8 @@ export const getCases = () => {
             .join("\n")
             .trim();
         req.bodyLines = trimmed.map(({ i }) => i);
-        caseBlocks.push(req);
+        sectionBlocks.push(req);
         req = newRequest();
     }
-    return caseBlocks;
+    return sectionBlocks;
 };

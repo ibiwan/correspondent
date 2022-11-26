@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { parse } from "./extendedHttpParse";
 
-export const TestCase = ({ src: initialSrc = null }) => {
+export const TestSection = ({ src: initialSrc = null }) => {
     const [src, setSrc] = useState(initialSrc);
 
     const [dest, setDest] = useState(parse(src));
