@@ -34,14 +34,14 @@ const findBlock = (text) => {
     return false;
 };
 
-const parser = new XMLParser();
+const xmlParser = new XMLParser();
 
 const parsers = {
     raw: (x) => x,
     gqlD: findBlock,
     gql: gqlParse,
     json: JSON.parse,
-    xml: (body) => parser.parse(body, true),
+    xml: (body) => xmlParser.parse(body, true),
     yml: yamlParse,
 };
 
@@ -63,6 +63,7 @@ export const parse = (src) => {
         return null;
     }
 
+    // console.log(`parse: `, src);
     const parsed = httpMessageParser(src.body);
     const minimItems = Object.entries(parsed).filter(([k, v]) => v);
 

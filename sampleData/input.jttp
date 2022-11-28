@@ -1,0 +1,42 @@
+@fruit = red delicious apple
+@= veg corn on the cob
+@set meat deep fried medium rare filet mignon
+
+# adds to environment, no hierarchy, collisions stomp
+@< someJsonData jsonInput.json
+@import-vals someXmlData xmlInput.xml
+@< someYamlData yamlInput.yml
+
+@<< balloons balloons.jpg binary
+@<< lorem sample3.txt text
+@<< declaration asciiValue.txt text ascii
+@<< samplepage utf8value.txt text utf-8
+@import-binary river river.png
+@import-text curious utf8curious.txt
+@import-text watson asciiWatson.txt ascii
+@import-text sampler utf8sampler.txt utf-8
+
+@& myName1
+@name myName2
+
+@* theirName1
+@* theirName2 myName2
+@ref theirName3
+@ref theirName4 myName4
+
+@$ jsFile
+@exec jsFile
+
+@# small1.jttp
+@include small2.jttp
+
+@? varName1 Would you like to play a game?    
+@prompt varName2 Shall we play the same game?!
+
+POST /
+Content-Type: application/json
+
+query {purple  { hello  { value } }}
+
+#########
+OPTIONS /anypage.html HTTP/1.0

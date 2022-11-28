@@ -18,7 +18,6 @@ export class Entity {
         return this;
     }
     toString() {
-        // console.log({ v: this._val, p: this._prefix, m: this._maybe });
         const maybeMaybe = this._maybe ? maybe : (a) => a;
         return maybeMaybe(this._prefix + this._val.toString());
     }

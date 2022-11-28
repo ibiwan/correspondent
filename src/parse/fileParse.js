@@ -1,6 +1,7 @@
 import { readFileSync } from "fs";
 import { lineTypes } from "./lineTypes.js";
 import { annotationTypes } from "./annotationTypes.js";
+import { exit } from "process";
 
 const newRequest = () => ({
     lines: [],
@@ -44,32 +45,40 @@ const sortLine = (req, line, i) => {
     }
 };
 
-export const getSections = () => {
-    const text = readFileSync("public/input.jttp", "utf-8");
+export const getSections = (filePath) => {
+    const text = readFileSync(filePath, "utf-8");
 
     let req = newRequest();
     const sectionBlocks = text.split("\n").reduce((blocks, line, i) => {
         const isDelim = sortLine(req, line, i);
         if (isDelim) {
-            blocks.push(req);
+            blocks.push(joinBody(req));
             req = newRequest();
         }
 
         return blocks;
     }, []);
     if (req.lines.length > 0) {
-        const [first, last] = [
-            req.lines.find(({ line }) => line).i,
-            req.lines.findLast(({ line }) => line).i,
-        ];
-        const trimmed = req.lines.filter(({ i }) => first <= i && i <= last);
-        req.body = trimmed
-            .map(({ line }) => line)
-            .join("\n")
-            .trim();
-        req.bodyLines = trimmed.map(({ i }) => i);
-        sectionBlocks.push(req);
+        sectionBlocks.push(joinBody(req));
         req = newRequest();
     }
+
     return sectionBlocks;
+};
+
+const joinBody = (req) => {
+    const [first, last] = [
+        req.lines.find(({ line }) => line)?.i,
+        req.lines.findLast(({ line }) => line)?.i,
+    ];
+
+    const trimmed = req.lines.filter(({ i }) => first <= i && i <= last);
+
+    req.body = trimmed
+        .map(({ line }) => line)
+        .join("\n")
+        .trim();
+    req.bodyLines = trimmed.map(({ i }) => i);
+
+    return req;
 };

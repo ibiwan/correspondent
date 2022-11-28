@@ -1,12 +1,10 @@
 import * as readline from "node:readline/promises";
-import { exit, stdin as input, stdout as output } from "node:process";
+import { stdin as input, stdout as output } from "node:process";
 
-import { parse } from "../src/parse/extendedHttpParse.js";
-import { getSections } from "../src/parse/fileParse.js";
+import { executeSection, loadFile } from "../src/runenv/executeSection.js";
+import { UserInputError } from "../src/error/errors.js";
 
-const parsedSections = getSections()
-    .filter((a) => a)
-    .map(parse);
+const { parsedSections, workingDir } = loadFile("sampleData/input.jttp");
 
 // console.dir({ parsedSections }, { depth: 6 });
 
@@ -54,34 +52,31 @@ const lets = [...c.matchAll("[a-zA-Z]+")];
 console.log({ nums, lets });
 
 if (nums.length === 0) {
-    console.log("we need a section number to work with");
-    exit(1);
+    throw new UserInputError("Please input a section number to act on");
 }
 
 if (lets.length === 0) {
-    console.log("we need an action to work with");
-    exit(2);
+    throw new UserInputError("Please input an action code to execute");
 }
 
-const selectedSection = parseInt(nums[0][0]);
 const selectedAction = lets[0][0].toUpperCase();
-console.log({ selectedAction });
+if (!(selectedAction in actions)) {
+    throw new UserInputError("That was not a valid action.");
+}
+const actionName = actions[selectedAction];
 
-if (selectedSection in sectionOptions && selectedAction in actions) {
-    const actionName = actions[selectedAction];
-    const section = sectionOptions[selectedSection];
-    console.log({
-        section: section.request,
-        actionName,
-    });
+const selectedSection = parseInt(nums[0][0]);
+if (!(selectedSection in sectionOptions)) {
+    throw new UserInputError("That was not a valid section.");
+}
+const section = parsedSections[selectedSection];
 
-    switch (actionName) {
-        case "see details":
-            console.log(section);
-            break;
-        default:
-    }
-} else {
-    console.log("I don't know that one");
-    exit(3);
+switch (actionName) {
+    case "see details":
+        console.log(section);
+        break;
+    case "execute":
+        await executeSection(section, workingDir);
+        break;
+    default:
 }

@@ -185,8 +185,9 @@ last: Ali
 @set var3 expression3 + other expr3
 
 # adds to environment, no hierarchy, collisions stomp
-@< filename1-to-import-from
-@import-vals filename2-to-import-from
+@< someJsonData jsonInput.json
+@import-vals someXmlData xmlInput.xml
+@< someYamlData yamlInput.yml
 
 @<< varname1 filename1 binary
 @<< varname2 filename2 text

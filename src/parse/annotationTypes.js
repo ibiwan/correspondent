@@ -51,8 +51,8 @@ export const annotationTypes = [
     ],
     [
         "import-vals",
-        [annotationType.importVals.sym, fileName()],
-        [annotationType.importVals.kw, fileName()],
+        [annotationType.importVals.sym, varName(), fileName()],
+        [annotationType.importVals.kw, varName(), fileName()],
     ],
     [
         "import-raw",
@@ -86,13 +86,16 @@ export const annotationTypes = [
         "exec",
         [annotationType.exec.sym, fileName()],
         [annotationType.exec.kw, fileName()],
-        [],
     ],
     [
         "prompt",
         [annotationType.prompt.sym, varName(), prompt()],
         [annotationType.prompt.kw, varName(), prompt()],
-        [],
+    ],
+    [
+        "_include",
+        [annotationType.include.sym, fileName()],
+        [annotationType.include.kw, fileName()],
     ],
 ]
     .map(arrToAnnotation)
