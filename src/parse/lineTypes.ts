@@ -4,6 +4,6 @@ import { annoRe, lineRe } from "../regex/wrappers.js";
 
 export const lineTypes = {
     delimiter: lineRe(blockDelimiter + "{3,}"),
-    annotation: annoRe(rest()),
+    annotation: annoRe(`${rest()}`),
     comment: lineRe(o_ + "(#|//)" + rest()),
 };

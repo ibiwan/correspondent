@@ -1,13 +1,13 @@
-import { sym, txt } from "./entity.js";
+import { Entity, sym, txt } from "./entity.js";
 import { _BINARY, _TEXT } from "./atoms.js";
 
-const tokenWith = (name, content, isSuffix = false) =>
+const tokenWith = (name: String, content: String, isSuffix = false): Entity =>
     txt(`(?<${name}>${content})`, isSuffix);
 
-const token = (name, moreChar = "", isSuffix = false) =>
+const token = (name: String, moreChar = "", isSuffix = false): Entity =>
     tokenWith(name, `[a-zA-Z0-9_\\-${moreChar}]+`, isSuffix);
 
-const keyword = (name, value, isSuffix = false) =>
+const keyword = (name: String, value: String, isSuffix = false): Entity =>
     tokenWith(name, value, isSuffix);
 
 export const start = () => sym("^");
