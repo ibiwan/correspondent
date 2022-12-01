@@ -4,8 +4,21 @@ import { v4 as uuid } from "uuid";
 import { parse as yamlParse } from "yaml";
 
 import httpMessageParser from "@ibiwan/http-message-parser";
+import { RequestSection } from "./fileParse";
 
-const validate = (message) => {
+export interface ParsedHttpMessage {
+    id: string;
+    method?: string;
+    url?: string;
+    type: string;
+    headers?: Object;
+    boundary?: string;
+    multipart?: [];
+    body?: string | Object;
+    message?: string;
+}
+
+const validate = (message: ParsedHttpMessage) => {
     const hasUrl = "url" in message;
     const hasStatusCode = "statusCode" in message;
     if (!hasUrl && !hasStatusCode) {
@@ -13,7 +26,7 @@ const validate = (message) => {
     }
 };
 
-const findBlock = (text) => {
+const findBlock = (text: string) => {
     const lines = text.split(/\n|\r\n/);
     for (let i = 0; i < lines.length; i++) {
         for (let j = lines.length - 1; j >= i; j--) {
@@ -36,8 +49,11 @@ const findBlock = (text) => {
 
 const xmlParser = new XMLParser();
 
-const parsers = {
-    raw: (x) => x,
+type Parser = (x: string) => Object;
+export type Lookup<T> = { [x: string]: T };
+
+const parsers: Lookup<Parser> = {
+    raw: (x: string) => x,
     gqlD: findBlock,
     gql: gqlParse,
     json: JSON.parse,
@@ -45,7 +61,7 @@ const parsers = {
     yml: yamlParse,
 };
 
-const parseBody = (body) => {
+const parseBody = (body: string): {} => {
     const parsedEntries = Object.entries(parsers)
         .map(([key, parser]) => {
             try {
@@ -58,22 +74,21 @@ const parseBody = (body) => {
     return Object.fromEntries(parsedEntries);
 };
 
-export const parse = (src) => {
+export const parse = (src: RequestSection) => {
     if (!src) {
         return null;
     }
 
-    // console.log(`parse: `, src);
-    const parsed = httpMessageParser(src.body);
-    const minimItems = Object.entries(parsed).filter(([k, v]) => v);
+    const parsed: ParsedHttpMessage = httpMessageParser(src.body);
 
-    const minim = Object.fromEntries(minimItems);
-    validate(minim);
+    validate(parsed);
 
-    minim.id = uuid();
-    if (minim.body) {
-        minim.body = parseBody(minim.body);
+    src.request = parsed;
+
+    parsed.id = uuid();
+    if (typeof parsed.body === "string" && parsed.body !== "") {
+        parsed.body = parseBody(parsed.body);
     }
 
-    return { ...src, request: minim };
+    return src;
 };

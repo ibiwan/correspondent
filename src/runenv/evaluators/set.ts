@@ -1,4 +1,6 @@
-export const evalSet = (annotation, sectionContext) => {
+import { Evaluator } from ".";
+
+export const evalSet: Evaluator = (annotation, sectionContext) => {
     const {
         params: { varName, rest },
     } = annotation;

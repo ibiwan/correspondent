@@ -27,7 +27,7 @@ const run = async () => {
         };
     });
 
-    const actions = {
+    const actions: { [x: string]: string } = {
         S: "see details",
         X: "execute",
         V: "show vars",

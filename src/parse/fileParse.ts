@@ -1,10 +1,12 @@
 import { readFileSync } from "fs";
 import { lineTypes } from "./lineTypes.js";
 import { annotationTypes } from "./annotationTypes.js";
+import { ParsedHttpMessage } from "./extendedHttpParse.js";
 
-const findLast = (arr, fn) => arr.filter(fn).pop();
+const findLast = (arr: NumberedLine[], fn: (a: NumberedLine) => boolean) =>
+    arr.filter(fn).pop();
 
-class Annotation {
+export class Annotation {
     lineNo: Number;
     line: string;
     regEx: RegExp;
@@ -25,24 +27,26 @@ class Annotation {
     }
 }
 
-class NumberedLine {
+interface NumberedLine {
     i: Number;
     line: string;
-    constructor(i: Number, line: string) {
-        this.i = i;
-        this.line = line;
-    }
 }
 
-class Request {
+interface NumberedComment {
+    line: Number;
+    comment: string;
+}
+
+export class RequestSection {
     lines: NumberedLine[] = [];
     annotations: Annotation[] = [];
-    comments: string[] = [];
+    comments: NumberedComment[] = [];
     bodyLines: Number[] = [];
     body: string;
+    request?: ParsedHttpMessage;
 }
 
-const sortLine = (req, line, i) => {
+const sortLine = (req: RequestSection, line: string, i: Number) => {
     // console.log("will sort", { line });
 
     // console.log({ lineTypes });
@@ -54,7 +58,7 @@ const sortLine = (req, line, i) => {
 
     if (lineTypes.annotation.test(line)) {
         // console.log("is annotation");
-        const annotations = [];
+        const annotations: Annotation[] = [];
         annotationTypes.forEach(({ type, regExes }) => {
             regExes.forEach((regEx) => {
                 const matches = regEx.exec(line);
@@ -77,7 +81,7 @@ const sortLine = (req, line, i) => {
         if (annotations.length > 0) {
             req.annotations.push(...annotations);
         } else {
-            req.lines.push(line);
+            req.lines.push({ i, line });
             req.bodyLines.push(i);
         }
     } else if (lineTypes.comment.test(line)) {
@@ -85,43 +89,45 @@ const sortLine = (req, line, i) => {
         req.comments.push({ line: i, comment: line });
     } else {
         // console.log("is just line");
-        req.lines.push(new NumberedLine(i, line));
+        req.lines.push({ i, line });
         req.bodyLines.push(i);
     }
 };
 
-export const getSections = (filePath) => {
+export const getSections = (filePath: string) => {
     const text = readFileSync(filePath, "utf-8");
 
-    let req = new Request();
-    const sectionBlocks: Request[] = text
+    let req = new RequestSection();
+    const sectionBlocks: RequestSection[] = text
         .split("\n")
-        .reduce((blocks, line, i) => {
+        .reduce((blocks: RequestSection[], line: string, i: Number) => {
             const isDelim = sortLine(req, line, i);
             if (isDelim) {
                 blocks.push(joinBody(req));
-                req = new Request();
+                req = new RequestSection();
             }
 
             return blocks;
         }, []);
     if (req.lines.length > 0) {
         sectionBlocks.push(joinBody(req));
-        // req = new Request();
+        // req = new RequestSection();
     }
 
-    console.log({ a: sectionBlocks[0].annotations[0].params });
+    console.log({ a: sectionBlocks[0].annotations[0]?.params });
 
     return sectionBlocks;
 };
 
-const joinBody = (req: Request) => {
-    const [first, last] = [
+const joinBody = (req: RequestSection) => {
+    const [first, last]: Number[] = [
         req.lines.find(({ line }) => line)?.i,
-        findLast(req.lines, ({ line }) => line)?.i,
+        findLast(req.lines, ({ line }) => Boolean(line))?.i,
     ];
 
-    const trimmed = req.lines.filter(({ i }) => first <= i && i <= last);
+    const trimmed: NumberedLine[] = req.lines.filter(
+        ({ i }) => first <= i && i <= last
+    );
 
     req.body = trimmed
         .map(({ line }) => line)

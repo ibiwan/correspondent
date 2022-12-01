@@ -1,27 +1,36 @@
 import * as crypto from "crypto";
-import path from "path";
+import * as path from "path";
 import { FileContentError } from "../error/errors.js";
 
 import { parse } from "../parse/extendedHttpParse.js";
-import { getSections } from "../parse/fileParse.js";
+import { RequestSection, getSections } from "../parse/fileParse.js";
 import { evaluators } from "./evaluators/index.js";
 
-export class RootContext {
-    constructor() {
-        this.loadedSections = [];
-    }
+class RootContext {
+    loadedSections: SectionContext[] = [];
+}
+
+interface SectionContextOptions {
+    workingDir: string;
+    loadingSection?: SectionContext;
 }
 
 export class SectionContext {
-    constructor(sectionDef, options) {
+    sectionDef: RequestSection;
+    rootContext: RootContext;
+    vars: { [t: string]: any } = {};
+    varRefs: { [t: string]: string } = {};
+    neededVars: {} = {};
+    sectionName: string;
+    workingDir: string;
+    sectionKey: string;
+    constructor(sectionDef: RequestSection, options: SectionContextOptions) {
+        console.log({ sectionDef });
         this.sectionDef = sectionDef;
         const { workingDir, loadingSection = null } = options;
         this.rootContext = loadingSection?.rootContext ?? new RootContext();
         this.rootContext.loadedSections.push(this);
-        this.vars = {};
-        this.varRefs = {};
-        this.neededVars = {};
-        this.name = {};
+
         this.workingDir = workingDir;
 
         this.sectionKey = crypto
@@ -31,31 +40,31 @@ export class SectionContext {
     }
 }
 
-export const executeSection = async (sectionDef, workingDir) => {
+export const executeSection = async (
+    sectionDef: RequestSection,
+    workingDir: string
+) => {
     const sectionContext = new SectionContext(sectionDef, { workingDir });
 
     await loadSection(sectionContext);
-
-    // console.dir({ sectionContext }, { depth: 1 });
-    // console.log({ s: sectionContext.loadedSections });
-    // console.log({ v: Object.keys(sectionContext.vars) });
-    // console.log({ vr: sectionContext.varRefs });
 };
 
-export const loadFile = (filePath, parentDir = null) => {
-    const fileInDir = parentDir ? path.join(parentDir, filePath) : filePath;
-    const workingDir = path.dirname(path.resolve(fileInDir));
+export const loadFile = (filePath: string, parentDir?: string) => {
+    const fileInDir: string = parentDir
+        ? path.join(parentDir, filePath)
+        : filePath;
+    const workingDir: string = path.dirname(path.resolve(fileInDir));
 
     console.log({ filePath, parentDir, fileInDir, workingDir });
 
-    const rawSections = getSections(fileInDir);
-    const nonEmptySections = rawSections.filter((a) => a);
+    const rawSections: RequestSection[] = getSections(fileInDir);
+    const nonEmptySections: RequestSection[] = rawSections.filter((a) => a);
     const parsedSections = nonEmptySections.map(parse);
 
     return { parsedSections, workingDir };
 };
 
-const loadSection = async (sectionContext) => {
+const loadSection = async (sectionContext: SectionContext) => {
     const { sectionDef } = sectionContext;
     for (const annotation of sectionDef.annotations) {
         if (annotation.type in evaluators) {

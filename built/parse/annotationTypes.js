@@ -1,9 +1,9 @@
-import { entityJoin, sym } from "../regex/entity.js";
+import { entityJoin, sym, txt } from "../regex/entity.js";
 import { dataType, encoding, fileName, kwBinary, kwText, prompt, refName, rest, varName, } from "../regex/tokens.js";
 import { annoRe } from "../regex/wrappers.js";
 class AnnotationEntry {
     constructor(keyword, symbol) {
-        this.kw = keyword;
+        this.kw = txt(keyword);
         this.sym = sym(symbol);
     }
 }

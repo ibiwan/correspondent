@@ -1,5 +1,5 @@
-import fs from "fs";
-import path from "path";
+import * as fs from "fs";
+import * as path from "path";
 import { XMLParser } from "fast-xml-parser";
 import { parse as yamlParse } from "yaml";
 import { FileExistenceError, MissingImporterError, } from "../../error/errors.js";
@@ -10,7 +10,7 @@ const importXml = (buffer) => {
     return xml;
 };
 const importJson = (buffer) => {
-    const json = JSON.parse(buffer);
+    const json = JSON.parse(buffer.toString());
     // console.log({ json });
     return json;
 };

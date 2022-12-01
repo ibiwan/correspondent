@@ -1,22 +1,17 @@
-import fs from "fs";
-import path from "path";
-import { XMLParser } from "fast-xml-parser";
-import { parse as yamlParse } from "yaml";
+import * as fs from "fs";
+import * as path from "path";
 import { FileExistenceError, MissingImporterError, } from "../../error/errors.js";
 const importText = (filePath, encoding = "ascii") => {
-    const rawFile = fs.readFileSync(filePath, { encoding });
-    return rawFile;
+    return fs.readFileSync(filePath, { encoding });
 };
 const importBinary = (filePath) => {
-    const rawFile = fs.readFileSync(filePath, { encoding: "binary" });
-    return rawFile;
+    return fs.readFileSync(filePath);
 };
 const importers = {
     text: importText,
     binary: importBinary,
 };
 export const evalImportRaw = (annotation, sectionContext) => {
-    // console.log({ annotation });
     const { workingDir } = sectionContext;
     const { varName, fileName, dataType, encoding } = annotation.params;
     const filePath = path.join(workingDir, fileName);

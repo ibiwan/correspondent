@@ -1,6 +1,7 @@
-import { loadFile, SectionContext } from "../executeSection.js";
+import { loadFile } from "../executeSection.js";
+import { Evaluator } from "./index.js";
 
-export const evalInclude = (annotation, sectionContext) => {
+export const evalInclude: Evaluator = (annotation, sectionContext) => {
     // console.log({ annotation });
     // console.log({ sectionContext });
     const { workingDir: parentDir } = sectionContext;
@@ -9,5 +10,4 @@ export const evalInclude = (annotation, sectionContext) => {
     const { parsedSections, workingDir } = loadFile(fileName, parentDir);
     console.log("parsedSections", parsedSections);
     // const newSection = new SectionContext();
-    
 };

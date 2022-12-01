@@ -1,4 +1,4 @@
-import { Entity, entityJoin, sym } from "../regex/entity.js";
+import { Entity, entityJoin, sym, txt } from "../regex/entity.js";
 import {
     dataType,
     encoding,
@@ -13,10 +13,10 @@ import {
 import { annoRe } from "../regex/wrappers.js";
 
 class AnnotationEntry {
-    kw: any;
+    kw: Entity;
     sym: Entity;
-    constructor(keyword, symbol) {
-        this.kw = keyword;
+    constructor(keyword: string, symbol: string) {
+        this.kw = txt(keyword);
         this.sym = sym(symbol);
     }
 }

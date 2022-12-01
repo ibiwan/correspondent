@@ -1,13 +1,13 @@
 import { o_, ReAtom, r_ } from "./atoms.js";
 
-const maybe = (content) => `(${content})?`;
+const maybe = (content: string): string => `(${content})?`;
 
 export class Entity {
     _val: ReAtom;
     _maybe: Boolean = false;
-    _prefix: ReAtom = new ReAtom("");
+    _prefix: ReAtom = "";
     _isSuffix: Boolean;
-    constructor(val, isSuffix = false) {
+    constructor(val: ReAtom, isSuffix = false) {
         this._val = val;
         this._isSuffix = isSuffix;
     }
@@ -25,15 +25,15 @@ export class Entity {
     }
 }
 export class Symbolic extends Entity {}
-export const sym = (val: String, isSuffix = false) =>
+export const sym = (val: ReAtom, isSuffix = false) =>
     new Symbolic(val, isSuffix);
 
 export class Textual extends Entity {}
-export const txt = (val: String, isSuffix = false) =>
+export const txt = (val: ReAtom, isSuffix = false) =>
     new Textual(val, isSuffix);
 
 export const entityJoin = (entities: Entity[]) => {
-    const extended = [];
+    const extended: Entity[] = [];
     entities.forEach((val, i) => {
         // console.log({ val });
         if (i === 0) {

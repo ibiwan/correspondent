@@ -56,14 +56,12 @@ export const parse = (src) => {
     if (!src) {
         return null;
     }
-    // console.log(`parse: `, src);
     const parsed = httpMessageParser(src.body);
-    const minimItems = Object.entries(parsed).filter(([k, v]) => v);
-    const minim = Object.fromEntries(minimItems);
-    validate(minim);
-    minim.id = uuid();
-    if (minim.body) {
-        minim.body = parseBody(minim.body);
+    validate(parsed);
+    src.request = parsed;
+    parsed.id = uuid();
+    if (typeof parsed.body === "string" && parsed.body !== "") {
+        parsed.body = parseBody(parsed.body);
     }
-    return { ...src, request: minim };
+    return src;
 };

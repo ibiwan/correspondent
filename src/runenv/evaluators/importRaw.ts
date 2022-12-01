@@ -1,30 +1,31 @@
-import fs from "fs";
-import path from "path";
-import { XMLParser } from "fast-xml-parser";
-import { parse as yamlParse } from "yaml";
+import * as fs from "fs";
+import * as path from "path";
+
 import {
     FileExistenceError,
     MissingImporterError,
 } from "../../error/errors.js";
+import { Evaluator } from "./index.js";
 
-const importText = (filePath, encoding = "ascii") => {
-    const rawFile = fs.readFileSync(filePath, { encoding });
-    return rawFile;
+const importText = (
+    filePath: string,
+    encoding: BufferEncoding = "ascii"
+): string => {
+    return fs.readFileSync(filePath, { encoding });
 };
 
-const importBinary = (filePath) => {
-    const rawFile = fs.readFileSync(filePath, { encoding: "binary" });
-    return rawFile;
+const importBinary = (filePath: string): Buffer => {
+    return fs.readFileSync(filePath);
 };
 
-const importers = {
+type Importer = (t: any, u?: any) => string | Buffer;
+
+const importers: { [t: string]: Importer } = {
     text: importText,
     binary: importBinary,
 };
 
-export const evalImportRaw = (annotation, sectionContext) => {
-    // console.log({ annotation });
-
+export const evalImportRaw: Evaluator = (annotation, sectionContext) => {
     const { workingDir } = sectionContext;
     const { varName, fileName, dataType, encoding } = annotation.params;
 

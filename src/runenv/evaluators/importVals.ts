@@ -1,39 +1,40 @@
-import fs from "fs";
-import path from "path";
+import * as fs from "fs";
+import * as path from "path";
 import { XMLParser } from "fast-xml-parser";
 import { parse as yamlParse } from "yaml";
 import {
     FileExistenceError,
     MissingImporterError,
 } from "../../error/errors.js";
+import { Evaluator } from "./index.js";
 
-const importXml = (buffer) => {
+const importXml = (buffer: Buffer) => {
     const xmlParser = new XMLParser();
     const xml = xmlParser.parse(buffer, true);
     // console.log({ xml });
     return xml;
 };
 
-const importJson = (buffer) => {
-    const json = JSON.parse(buffer);
+const importJson = (buffer: Buffer) => {
+    const json = JSON.parse(buffer.toString());
     // console.log({ json });
     return json;
 };
 
-const importYml = (buffer) => {
+const importYml = (buffer: Buffer) => {
     const yml = yamlParse(buffer.toString());
     // console.log({ yml });
     return yml;
 };
 
-const importers = {
+const importers: { [t: string]: Function } = {
     json: importJson,
     xml: importXml,
     yml: importYml,
     yaml: importYml,
 };
 
-export const evalImportVals = (annotation, sectionContext) => {
+export const evalImportVals: Evaluator = (annotation, sectionContext) => {
     const { workingDir } = sectionContext;
     const { varName, fileName } = annotation.params;
     const filePath = path.join(workingDir, fileName);

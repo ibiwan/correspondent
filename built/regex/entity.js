@@ -1,9 +1,9 @@
-import { o_, ReAtom, r_ } from "./atoms.js";
+import { o_, r_ } from "./atoms.js";
 const maybe = (content) => `(${content})?`;
 export class Entity {
     constructor(val, isSuffix = false) {
         this._maybe = false;
-        this._prefix = new ReAtom("");
+        this._prefix = "";
         this._val = val;
         this._isSuffix = isSuffix;
     }
